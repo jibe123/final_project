@@ -1,5 +1,7 @@
 from django.db import models
+from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db.models.signals import post_save
 
 
 class User(AbstractUser):
@@ -37,11 +39,6 @@ class User(AbstractUser):
         if self.first_name and self.last_name and is_new:
             self.username = self.make_username(self.first_name, self.last_name)
         super(User, self).save(force_insert, force_update)
-        if is_new:
-            if self.is_student:
-                Student.objects.create(user_id=self.id)
-            if self.is_officer:
-                Officer.objects.create(user_id=self.id)
 
     @classmethod
     def make_username(cls, first_name, last_name):
@@ -138,3 +135,12 @@ class Student(models.Model):
     class Meta:
         verbose_name = "Студент"
         verbose_name_plural = "Студенты"
+
+
+@receiver(post_save, sender=User)
+def user_created_signal(sender, instance, created, **kwargs):
+    if created:
+        if instance.is_student:
+            Student.objects.create(user=instance)
+        elif instance.is_officer:
+            Officer.objects.create(user=instance)

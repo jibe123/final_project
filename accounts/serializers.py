@@ -3,7 +3,7 @@ import secrets
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from .models import User, Student, Officer, Group, Department
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -18,6 +18,7 @@ class NewUserSerializer(serializers.ModelSerializer):
     user_must_change_password = serializers.HiddenField(default=True)
     is_management = serializers.BooleanField(default=False)
     is_officer = serializers.BooleanField(default=False)
+    is_teacher = serializers.BooleanField(default=False)
     is_student = serializers.BooleanField(default=False)
     password = serializers.CharField(write_only=True, default="")
 
@@ -46,6 +47,93 @@ class NewUserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class GroupField(serializers.RelatedField):
+    def get_queryset(self):
+        return Group.objects.all()
+
+    def to_internal_value(self, data):
+        try:
+            try:
+                return Group.objects.get(id=data)
+            except KeyError:
+                raise serializers.ValidationError(
+                    'Введите правильный id группы!'
+                )
+            except ValueError:
+                raise serializers.ValidationError(
+                    'id группы должен быть целым числом!'
+                )
+        except Group.DoesNotExist:
+            raise serializers.ValidationError(
+                'Такой группы не существует!'
+            )
+
+    def to_representation(self, value):
+        return GroupSerializer(value).data
+
+
+class StudentSerializer(serializers.Serializer):
+    user_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.filter(is_student=True))
+    group = GroupField()
+
+    class Meta:
+        model = Student
+        fields = ('user_id', 'group_id',)
+
+
+class DepartmentField(serializers.RelatedField):
+    def get_queryset(self):
+        return Department.objects.all()
+
+    def to_internal_value(self, data):
+        try:
+            try:
+                return Department.objects.get(id=data)
+            except KeyError:
+                raise serializers.ValidationError(
+                    'Введите правильный id направления!'
+                )
+            except ValueError:
+                raise serializers.ValidationError(
+                    'id направления должен быть целым числом!'
+                )
+        except Department.DoesNotExist:
+            raise serializers.ValidationError(
+                'Такого направления не существует!'
+            )
+
+    def to_representation(self, value):
+        return DepartmentSerializer(value).data
+
+
+class OfficerSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(is_officer=True))
+    department = DepartmentField()
+
+    class Meta:
+        model = Officer
+        fields = ('user_id', 'department_id',)
+
+
+class DepartmentSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+
+    class Meta:
+        model = Department
+        fields = '__all__'
+
+
+class GroupSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=10)
+    department = DepartmentField()
+
+    class Meta:
+        model = Group
+        fields = ('user_id', 'department_id',)
 
 
 class UserSerializer(serializers.ModelSerializer):
