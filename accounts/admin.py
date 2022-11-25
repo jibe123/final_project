@@ -4,11 +4,9 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User, Group, Department, Officer, Student
+from .models import User, Group, Student
 
 admin.site.register(Group)
-admin.site.register(Department)
-admin.site.register(Officer)
 admin.site.register(Student)
 
 
@@ -18,8 +16,8 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username',
-                  'is_management', 'is_officer', 'is_teacher', 'is_student')
+        fields = ('first_name', 'last_name', 'username', 'email',
+                  'is_manager', 'is_teacher', 'is_student')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -41,19 +39,19 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'password')
+        fields = ('first_name', 'last_name', 'username', 'password', 'email')
 
 
 class UserAdmin(BaseUserAdmin):
 
     add_form = UserCreationForm
 
-    list_display = ('username', 'is_management', 'is_officer', 'is_teacher', 'is_student')
+    list_display = ('id', 'username', 'is_manager', 'is_teacher', 'is_student')
     list_filter = ()
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'is_management',
-                           'is_officer', 'is_teacher', 'is_student',
-                           'is_active', 'user_must_change_password')}),
+        (None, {'fields': ('username', 'password', 'is_manager',
+                           'is_teacher', 'is_student', 'is_active',
+                           'auto_password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'email')})
     )
 
@@ -61,7 +59,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('first_name', 'last_name', 'password1', 'password2',
-                       'is_management', 'is_officer', 'is_teacher', 'is_student'),
+                       'is_manager', 'is_teacher', 'is_student', 'email'),
         }),
     )
     search_fields = ('username',)

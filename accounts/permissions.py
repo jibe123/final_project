@@ -2,7 +2,7 @@ from rest_framework.permissions import BasePermission
 
 
 class IsSuperuser(BasePermission):
-    message = "У вас недостаточно прав для этого действия!"
+    message = "Вы должны быть администратором для выполнения этого действия!"
 
     def has_permission(self, request, view):
         return True if request.user.is_superuser else False
@@ -11,21 +11,11 @@ class IsSuperuser(BasePermission):
         return True if request.user.is_superuser else False
 
 
-class IsOfficer(BasePermission):
-    message = "У вас недостаточно прав для этого действия!"
+class IsManager(BasePermission):
+    message = "Вы должны быть сотрудником для выполнения этого действия!"
 
     def has_permission(self, request, view):
-        return True if request.user.is_officer else False
+        return True if request.user.is_manager else False
 
     def has_object_permission(self, request, view, obj):
-        return True if request.user.is_officer else False
-
-
-class IsManagement(BasePermission):
-    message = "У вас недостаточно прав для этого действия!"
-
-    def has_permission(self, request, view):
-        return True if request.user.is_management else False
-
-    def has_object_permission(self, request, view, obj):
-        return True if request.user.is_management else False
+        return True if request.user.is_manager else False

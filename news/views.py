@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny
 
 from .serializers import NewsSerializer
 from .models import News
-from .permissions import IsSuperuser, IsOwner, IsOfficer
+from .permissions import IsSuperuser, IsOwner, IsManager
 
 
 class NewsViewSet(viewsets.ModelViewSet):
@@ -12,7 +12,7 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            permission_classes = [IsSuperuser | IsOfficer]
+            permission_classes = [IsSuperuser | IsManager]
 
         elif self.action in ['update', 'partial_update', 'destroy']:
             permission_classes = [IsSuperuser | IsOwner]

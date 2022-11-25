@@ -1,7 +1,5 @@
 from django.db import models
-from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db.models.signals import post_save
 
 
 class User(AbstractUser):
@@ -12,16 +10,14 @@ class User(AbstractUser):
     last_name = models.CharField(
         max_length=50, blank=True, null=True, verbose_name="Фамилия")
     email = models.EmailField(
-        blank=True, null=True, verbose_name="E-mail")
+        blank=True, null=True, verbose_name="E-mail", unique=True)
     is_active = models.BooleanField(
         default=True, verbose_name="Активный пользователь")
-    user_must_change_password = models.BooleanField(
+    auto_password = models.BooleanField(
         default=False, verbose_name="Пароль должен быть изменен")
     user_image = models.ImageField(
         null=True, blank=True, upload_to="images/", verbose_name="Фото профиля")
-    is_management = models.BooleanField(
-        default=False, verbose_name="Руководство")
-    is_officer = models.BooleanField(
+    is_manager = models.BooleanField(
         default=False, verbose_name="Сотрудник")
     is_teacher = models.BooleanField(
         default=False, verbose_name="Преподаватель")
@@ -43,12 +39,12 @@ class User(AbstractUser):
     @classmethod
     def make_username(cls, first_name, last_name):
         val = f"{first_name}.{last_name}".lower().replace(' ', '')
-        x = 0
+        x = 2
         while True:
-            if x == 0 and User.objects.filter(username=val).count() == 0:
+            if x == 2 and User.objects.filter(username=val).count() == 0:
                 return val
             else:
-                new_val = f"{val}{x}"
+                new_val = f"{val}_{x}"
                 if User.objects.filter(username=new_val).count() == 0:
                     return new_val
             x += 1
@@ -59,59 +55,21 @@ class User(AbstractUser):
 
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, first_name, last_name, **kwargs):
-        if not first_name:
-            raise ValueError("У пользователя должно быть имя")
-        if not last_name:
-            raise ValueError("У пользователя должна быть фамилия")
-
+    def create_user(self, first_name, last_name, email, **kwargs):
         user = self.model(first_name=first_name,
                           last_name=last_name,
-                          user_must_change_password=kwargs.get("user_must_change_password"),
+                          email=email,
+                          auto_password=kwargs.get("auto_password"),
                           username=kwargs.get("username"),
-                          is_management=kwargs.get("is_management"),
-                          is_officer=kwargs.get("is_officer"),
-                          is_teacher=kwargs.get("is_teacher"),
                           is_student=kwargs.get("is_student")
                           )
         user.save(using=self._db)
         return user
 
 
-class Department(models.Model):
-    name = models.CharField(
-        max_length=255, unique=True, verbose_name="Название направления")
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Направление"
-        verbose_name_plural = "Направления"
-
-
-class Officer(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True,
-        verbose_name="Пользователь")
-    department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="officers",
-        null=True, verbose_name="Направление")
-
-    def __str__(self):
-        return self.user.username
-
-    class Meta:
-        verbose_name = "Сотрудник"
-        verbose_name_plural = "Сотрудники"
-
-
 class Group(models.Model):
     name = models.CharField(
-        max_length=10, unique=True, verbose_name="Название группы")
-    department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="groups",
-        verbose_name="Направление")
+        max_length=20, unique=True, verbose_name="Название группы")
 
     def __str__(self):
         return self.name
@@ -135,12 +93,3 @@ class Student(models.Model):
     class Meta:
         verbose_name = "Студент"
         verbose_name_plural = "Студенты"
-
-
-@receiver(post_save, sender=User)
-def user_created_signal(sender, instance, created, **kwargs):
-    if created:
-        if instance.is_student:
-            Student.objects.create(user=instance)
-        elif instance.is_officer:
-            Officer.objects.create(user=instance)
