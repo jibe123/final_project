@@ -59,7 +59,8 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('first_name', 'last_name', 'password1', 'password2',
-                       'is_manager', 'is_teacher', 'is_student', 'email'),
+                       'is_manager', 'is_teacher', 'is_student',
+                       'auto_password', 'email'),
         }),
     )
     search_fields = ('username',)

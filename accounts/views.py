@@ -1,16 +1,8 @@
 from rest_framework import generics
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User
-from .serializers import (
-    MyTokenObtainPairSerializer,
-    CreateStudentSerializer,
-    UserSerializer)
 from .permissions import IsSuperuser, IsManager
-
-
-class MyObtainTokenPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+from .serializers import CreateStudentSerializer
 
 
 class StudentCreateAPIView(generics.ListCreateAPIView):
@@ -29,8 +21,3 @@ class StudentCreateAPIView(generics.ListCreateAPIView):
         else:
             return super(StudentCreateAPIView, self).get_serializer(
                 instance=instance, many=True, partial=partial)
-
-
-class UserListAPIView(generics.ListAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()

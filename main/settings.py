@@ -22,23 +22,6 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_filters',
-
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-
-    'accounts.apps.AccountsConfig',
-    'news.apps.NewsConfig',
-    'courses.apps.CoursesConfig',
-]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -51,6 +34,25 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_filters',
+
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'django_rest_passwordreset',
+    'corsheaders',
+
+    'accounts.apps.AccountsConfig',
+    'news.apps.NewsConfig',
+    'courses.apps.CoursesConfig',
+    'authusers.apps.AuthusersConfig',
+]
 ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
@@ -187,3 +189,12 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
    "http://localhost:4200",
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('EM_USER')
+EMAIL_HOST_PASSWORD = config('EM_PASSWORD')
+DEFAULT_FROM_EMAIL = 'jibek.k@gmail.com'

@@ -1,17 +1,8 @@
 import secrets
 
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User, Student, Group
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-        token['username'] = user.username
-        return token
 
 
 class GroupSerializer(serializers.Serializer):
@@ -30,13 +21,9 @@ class GroupField(serializers.RelatedField):
         try:
             return Group.objects.get(id=data)
         except Group.DoesNotExist:
-            raise serializers.ValidationError(
-                'Такой группы не существует!'
-            )
+            raise serializers.ValidationError('Такой группы не существует!')
         except ValueError:
-            raise serializers.ValidationError(
-                'Введите id группы!'
-            )
+            raise serializers.ValidationError('Введите id группы!')
 
     def to_representation(self, value):
         return GroupSerializer(value).data
@@ -52,6 +39,10 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         model = User
         fields = ('first_name', 'last_name', 'email',
                   'auto_password', 'is_student', 'password', 'group')
+        extra_kwargs = {"first_name": {"required": True},
+                        "last_name": {"required": True},
+                        "email": {"required": True},
+                        "group": {"required": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -68,10 +59,9 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.check_password(password)
         user.save()
-        student = Student.objects.create(
+        Student.objects.create(
             user_id=user.id,
-            group_id=validated_data.get("group").id
-        )
+            group_id=validated_data.get("group").id)
 
         return validated_data
 
@@ -80,10 +70,6 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         for field in fields:
             if data[field] is None or len(data[field]) < 2:
                 raise serializers.ValidationError
+            if 'group' is None:
+                raise serializers.ValidationError
         return data
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
