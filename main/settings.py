@@ -17,7 +17,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -49,10 +49,13 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'accounts.apps.AccountsConfig',
-    'news.apps.NewsConfig',
-    'courses.apps.CoursesConfig',
+    'assignments.apps.AssignmentsConfig',
     'authusers.apps.AuthusersConfig',
+    'board.apps.BoardConfig',
+    'news.apps.NewsConfig',
+    'timetable.apps.TimetableConfig',
 ]
+
 ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
@@ -142,7 +145,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
