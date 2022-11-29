@@ -22,10 +22,20 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
     thread = serializers.HyperlinkedRelatedField(
         many=False, view_name='thread-detail',
         queryset=Thread.objects.all(), required=False)
+    likes = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=User.objects.all())
+
+    def update(self, instance, validated_data):
+        likes = validated_data.pop('likes')
+        for i in likes:
+            instance.likes.add(i)
+        instance.save()
+        return instance
 
     class Meta:
         model = Message
-        fields = ('id', 'title', 'body_text', 'owner', 'thread')
+        fields = ('id', 'title', 'body_text', 'owner', 'likes', 'thread')
 
 
 class ThreadSerializer(serializers.HyperlinkedModelSerializer):

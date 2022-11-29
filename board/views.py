@@ -1,6 +1,7 @@
 from rest_framework import permissions, viewsets
 
 from accounts.models import User
+from accounts.permissions import IsSuperuser
 from .permissions import IsOwnerOrReadOnly
 from .models import Thread, Message
 from .serializers import UserSerializer, ThreadSerializer, MessageSerializer
@@ -30,3 +31,4 @@ class ThreadViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsSuperuser,)

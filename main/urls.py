@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/v1/auth/', include('authusers.urls')),
     path('api/v1/data/', include('accounts.urls')),
     path('api/v1/board/', include('board.urls')),
-    # path('api/v1/timetable/', include('timetable.urls')),
+    path('api/v1/', include('timetable.urls')),
 ]

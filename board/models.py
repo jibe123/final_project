@@ -13,6 +13,9 @@ class Thread(models.Model):
         User, on_delete=models.PROTECT, related_name='threads',
         verbose_name="Создатель темы")
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         ordering = ('created',)
 
@@ -34,6 +37,14 @@ class Message(models.Model):
     thread = models.ForeignKey(
         Thread, on_delete=models.CASCADE,
         verbose_name="Сообщение по теме", related_name='messages')
+    likes = models.ManyToManyField(
+        User, related_name='liked', verbose_name="Лайки")
+
+    def __str__(self):
+        return self.title
+
+    def count_likes(self):
+        return self.likes.count()
 
     class Meta:
         ordering = ('created',)

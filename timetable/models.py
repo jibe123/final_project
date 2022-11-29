@@ -1,7 +1,7 @@
 import datetime
 from django.db import models
 
-from accounts.models import User
+from accounts.models import User, Group
 
 
 class Course(models.Model):
@@ -13,6 +13,7 @@ class Course(models.Model):
     duration = models.DurationField(
         default=datetime.timedelta(hours=1, minutes=20),
         verbose_name="Продолжительность занятий")
+    groups = models.ManyToManyField(Group, related_name="courses")
 
     def __str__(self):
         return self.title
