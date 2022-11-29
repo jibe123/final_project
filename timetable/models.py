@@ -24,18 +24,18 @@ class Course(models.Model):
 
 class TableDay(models.Model):
     class Day(models.IntegerChoices):
-        MON = 1, "MONDAY"
-        TUE = 2, "TUESDAY"
-        WED = 3, "WEDNESDAY"
-        THU = 4, "THURSDAY"
-        FRI = 5, "FRIDAY"
-        SAT = 6, "SATURDAY"
+        MON = 1, "Понедельник"
+        TUE = 2, "Вторник"
+        WED = 3, "Среда"
+        THU = 4, "Четверг"
+        FRI = 5, "Пятница"
+        SAT = 6, "Суббота"
 
     day = models.PositiveSmallIntegerField(
         choices=Day.choices, default=Day.MON, verbose_name="День недели")
 
     def __str__(self):
-        return self.Day.name
+        return self.get_day_display()
 
     class Meta:
         verbose_name = "День в расписании"
@@ -47,13 +47,13 @@ class CourseDay(models.Model):
         Course, on_delete=models.CASCADE, related_name="course_days",
         verbose_name="Курс")
     table_day = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="table_days",
+        TableDay, on_delete=models.CASCADE, related_name="table_days",
         verbose_name="День в расписании")
     start_time = models.TimeField(
         blank=True, null=True, verbose_name="Время начала занятий")
 
     def __str__(self):
-        return f"{self.course} on {self.table_day} at {self.start_time}"
+        return f"{self.course} в {self.table_day.get_day_display()} в {self.start_time}"
 
     class Meta:
         verbose_name = "Расписание курса"
