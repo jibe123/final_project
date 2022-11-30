@@ -1,5 +1,6 @@
 import secrets
 
+from django.contrib.auth.models import Permission
 from rest_framework import serializers
 
 from .models import User, Student, Group
@@ -73,3 +74,14 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             if 'group' is None:
                 raise serializers.ValidationError
         return data
+
+
+class PermissionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Permission
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'

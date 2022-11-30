@@ -1,11 +1,16 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from rest_framework_simplejwt.views import TokenRefreshView
+from accounts.views import StudentCreateAPIView, UserViewSet, PermissionViewSet
 
-from accounts.views import StudentCreateAPIView
+router = DefaultRouter()
+router2 = DefaultRouter()
+router.register('users', UserViewSet)
+router2.register('permissions', PermissionViewSet)
 
 
 urlpatterns = [
     path('add_students/', StudentCreateAPIView.as_view(), name='add_students_view'),
-    path('authentication/', include('rest_framework.urls')),
+    path('', include(router.urls)),
+    path('', include(router2.urls)),
 ]

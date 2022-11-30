@@ -13,4 +13,5 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ChangeProfilePhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('user_image',)
+        fields = ('id', 'user_image',)
+
