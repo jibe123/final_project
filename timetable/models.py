@@ -14,6 +14,7 @@ class Course(models.Model):
         default=datetime.timedelta(hours=1, minutes=20),
         verbose_name="Продолжительность занятий")
     groups = models.ManyToManyField(Group, related_name="courses")
+    materials = models.FileField(upload_to='materials/', null=True, blank=True)
 
     def __str__(self):
         return self.title

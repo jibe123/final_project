@@ -1,11 +1,15 @@
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import MultiPartParser
 
 from accounts.permissions import IsSuperuser, IsManager
 from accounts.models import Group
 from .models import Course, CourseDay
-from .serializers import GroupsUpdateSerializer, CourseDaySerializer
+from .serializers import (
+    GroupsUpdateSerializer,
+    CourseDaySerializer,
+    CourseSerializer)
 
 
 @api_view(['POST'])
@@ -34,3 +38,9 @@ def update_groups_data(request):
 class TimetableViewSet(viewsets.ModelViewSet):
     serializer_class = CourseDaySerializer
     queryset = CourseDay.objects.all()
+
+
+class CourseViewSet(viewsets.ModelViewSet):
+    parser_classes = [MultiPartParser]
+    serializer_class = CourseSerializer
+    queryset = Course.objects.all()
