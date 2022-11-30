@@ -1,9 +1,13 @@
 from django.contrib.auth.models import Permission
 from rest_framework import generics, viewsets
 
-from .models import User
+from .models import User, Student
 from .permissions import IsSuperuser, IsManager
-from .serializers import CreateStudentSerializer, UserSerializer, PermissionSerializer
+from .serializers import (
+    CreateStudentSerializer,
+    UserSerializer,
+    PermissionSerializer,
+    StudentSerializer)
 
 
 class StudentCreateAPIView(generics.ListCreateAPIView):
@@ -25,9 +29,6 @@ class StudentCreateAPIView(generics.ListCreateAPIView):
 
 
 class PermissionViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows permissions to be viewed or edited.
-    """
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
 
@@ -35,4 +36,10 @@ class PermissionViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes = (IsSuperuser,)
+
+
+class StudentViewSet(viewsets.ModelViewSet):
+    serializer_class = StudentSerializer
+    queryset = Student.objects.all()
     permission_classes = (IsSuperuser,)

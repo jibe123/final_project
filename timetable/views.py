@@ -1,15 +1,16 @@
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from accounts.permissions import IsSuperuser, IsManager
 from accounts.models import Group
-from .models import Course, CourseDay
+from .models import Course, CourseDay, CourseMaterials
 from .serializers import (
     GroupsUpdateSerializer,
     CourseDaySerializer,
-    CourseSerializer)
+    CourseSerializer,
+    CourseMaterialsSerializer)
 
 
 @api_view(['POST'])
@@ -44,3 +45,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser]
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+
+
+class CourseMaterialsViewSet(viewsets.ModelViewSet):
+    parser_classes = (MultiPartParser, FormParser,)
+    serializer_class = CourseMaterialsSerializer
+    queryset = CourseMaterials.objects.all()
