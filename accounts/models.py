@@ -15,8 +15,8 @@ class User(AbstractUser):
         default=True, verbose_name="Активный пользователь")
     auto_password = models.BooleanField(
         default=False, verbose_name="Пароль должен быть изменен")
-    user_image = models.ImageField(
-        null=True, blank=True, upload_to="images/", verbose_name="Фото профиля")
+    user_image = models.FileField(
+        null=True, blank=True, upload_to="user/profile_photo/", verbose_name="Фото профиля")
     is_manager = models.BooleanField(
         default=False, verbose_name="Сотрудник")
     is_teacher = models.BooleanField(

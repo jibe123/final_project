@@ -1,16 +1,19 @@
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import generics, status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from django_rest_passwordreset.models import ResetPasswordToken
 from django_rest_passwordreset.signals import reset_password_token_created
+from rest_framework.views import APIView
 
 from accounts.models import User
-from .serializers import ChangePasswordSerializer
+from .serializers import ChangePasswordSerializer, ChangeProfilePhotoSerializer
 
 
 @receiver(post_save, sender=User)
@@ -74,3 +77,17 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(response)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangeProfilePhotoView(APIView):
+    parser_classes = (MultiPartParser, FormParser,)
+
+    @csrf_exempt
+    def post(self, request, format=None):
+        serializer = ChangeProfilePhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            user.user_image = serializer.validated_data.get("file")
+            user.save()
+            return Response(status=204)
+        return Response(status=400)

@@ -52,7 +52,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('username', 'password', 'is_manager',
                            'is_teacher', 'is_student', 'is_active',
                            'auto_password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')})
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'user_image')})
     )
 
     add_fieldsets = (
