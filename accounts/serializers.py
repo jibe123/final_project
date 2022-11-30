@@ -6,44 +6,38 @@ from rest_framework import serializers
 from .models import User, Student, Group
 
 
-class GroupSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=20)
-
+class StudentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
+        model = Student
         fields = '__all__'
 
 
-class GroupField(serializers.RelatedField):
-    def get_queryset(self):
-        return Group.objects.all()
+class GroupSerializer(serializers.ModelSerializer):
+    students = StudentSerializer
 
-    def to_internal_value(self, data):
-        try:
-            return Group.objects.get(id=data)
-        except Group.DoesNotExist:
-            raise serializers.ValidationError('Такой группы не существует!')
-        except ValueError:
-            raise serializers.ValidationError('Введите id группы!')
+    class Meta:
+        model = Group
+        fields = 'id', 'name', 'students'
 
-    def to_representation(self, value):
-        return GroupSerializer(value).data
+    def validate(self, data):
+        for student in data['students']:
+            if student.group is not None:
+                raise serializers.ValidationError
+        return data
 
 
-class CreateStudentSerializer(serializers.ModelSerializer):
+class NewStudentUserSerializer(serializers.ModelSerializer):
     auto_password = serializers.HiddenField(default=True)
-    is_student = serializers.BooleanField(default=True)
-    password = serializers.CharField(write_only=True, default="")
-    group = GroupField()
+    is_student = serializers.HiddenField(default=True)
+    password = serializers.HiddenField(default='default', write_only=True)
 
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email',
-                  'auto_password', 'is_student', 'password', 'group')
+                  'auto_password', 'is_student', 'password')
         extra_kwargs = {"first_name": {"required": True},
                         "last_name": {"required": True},
-                        "email": {"required": True},
-                        "group": {"required": True}}
+                        "email": {"required": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -55,14 +49,10 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             is_student=validated_data.get("is_student")
         )
         allowed_chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-        length = 11
-        password = "".join(secrets.choice(allowed_chars) for i in range(length))
+        password = "".join(secrets.choice(allowed_chars) for i in range(14))
         user.set_password(password)
         user.check_password(password)
         user.save()
-        Student.objects.create(
-            user_id=user.id,
-            group_id=validated_data.get("group").id)
 
         return validated_data
 
@@ -70,8 +60,6 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'email']
         for field in fields:
             if data[field] is None or len(data[field]) < 2:
-                raise serializers.ValidationError
-            if 'group' is None:
                 raise serializers.ValidationError
         return data
 
@@ -84,10 +72,4 @@ class PermissionSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
-
-
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
         fields = '__all__'

@@ -1,31 +1,20 @@
 from django.contrib.auth.models import Permission
 from rest_framework import generics, viewsets
 
-from .models import User, Student
+from .models import User, Student, Group
 from .permissions import IsSuperuser, IsManager
 from .serializers import (
-    CreateStudentSerializer,
+    NewStudentUserSerializer,
     UserSerializer,
     PermissionSerializer,
-    StudentSerializer)
+    StudentSerializer,
+    GroupSerializer)
 
 
 class StudentCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = CreateStudentSerializer
+    serializer_class = NewStudentUserSerializer
     queryset = User.objects.all()
     permission_classes = [IsSuperuser | IsManager]
-
-    def get_serializer(self, instance=None, data=None, many=False, partial=False):
-        if data is not None:
-            if type(data) == list:
-                return super(StudentCreateAPIView, self).get_serializer(
-                    instance=instance, data=data, many=True, partial=partial)
-            if type(data) == dict:
-                return super(StudentCreateAPIView, self).get_serializer(
-                    instance=instance, data=data, many=False, partial=partial)
-        else:
-            return super(StudentCreateAPIView, self).get_serializer(
-                instance=instance, many=True, partial=partial)
 
 
 class PermissionViewSet(viewsets.ModelViewSet):
@@ -42,4 +31,10 @@ class UserViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
     serializer_class = StudentSerializer
     queryset = Student.objects.all()
+    permission_classes = (IsSuperuser,)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
     permission_classes = (IsSuperuser,)

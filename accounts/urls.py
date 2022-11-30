@@ -5,19 +5,18 @@ from accounts.views import (
     StudentCreateAPIView,
     UserViewSet,
     PermissionViewSet,
-    StudentViewSet)
+    StudentViewSet,
+    GroupViewSet)
 
 router = DefaultRouter()
-router2 = DefaultRouter()
-router3 = DefaultRouter()
-router.register('users', UserViewSet)
-router2.register('permissions', PermissionViewSet)
-router3.register('students', StudentViewSet)
+
+# router.register('users', UserViewSet)
+# router.register('permissions', PermissionViewSet)
+router.register('students', StudentViewSet)
+router.register('groups', GroupViewSet)
 
 
 urlpatterns = [
     path('add_students/', StudentCreateAPIView.as_view(), name='add_students_view'),
     path('', include(router.urls)),
-    path('', include(router2.urls)),
-    path('', include(router3.urls)),
 ]

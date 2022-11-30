@@ -1,5 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class User(AbstractUser):
@@ -93,3 +95,9 @@ class Student(models.Model):
     class Meta:
         verbose_name = "Студент"
         verbose_name_plural = "Студенты"
+
+
+@receiver(post_save, sender=User)
+def create_student(sender, instance, created, **kwargs):
+    if created:
+        Student.objects.create(pk=instance.pk)
