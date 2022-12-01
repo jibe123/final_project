@@ -14,4 +14,3 @@ class ChangeProfilePhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'user_image',)
-
