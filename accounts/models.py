@@ -18,7 +18,8 @@ class User(AbstractUser):
     auto_password = models.BooleanField(
         default=False, verbose_name="Пароль должен быть изменен")
     user_image = models.ImageField(
-        null=True, blank=True, upload_to="userpics/", verbose_name="Фото профиля")
+        null=True, blank=True, upload_to="userpics/",
+        verbose_name="Фото профиля")
     is_manager = models.BooleanField(
         default=False, verbose_name="Сотрудник")
     is_teacher = models.BooleanField(
@@ -35,7 +36,8 @@ class User(AbstractUser):
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         is_new = self.id is None
         if self.first_name and self.last_name and is_new:
-            self.username = self.make_username(self.first_name, self.last_name)
+            self.username = self.make_username(
+                self.first_name, self.last_name)
         super(User, self).save(force_insert, force_update)
 
     @classmethod
@@ -84,7 +86,7 @@ class Group(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True,
-        verbose_name="Пользователь")
+        related_name="students", verbose_name="Пользователь")
     group = models.ForeignKey(
         Group, on_delete=models.PROTECT, related_name="students",
         null=True, verbose_name="Группа")
@@ -100,4 +102,5 @@ class Student(models.Model):
 @receiver(post_save, sender=User)
 def create_student(sender, instance, created, **kwargs):
     if created:
-        Student.objects.create(pk=instance.pk)
+        if instance.is_student:
+            Student.objects.create(pk=instance.pk)

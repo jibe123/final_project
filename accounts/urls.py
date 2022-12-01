@@ -1,22 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from accounts.views import (
-    StudentCreateAPIView,
-    UserViewSet,
-    PermissionViewSet,
-    StudentViewSet,
-    GroupViewSet)
+import accounts.views as vs
 
 router = DefaultRouter()
 
-# router.register('users', UserViewSet)
-# router.register('permissions', PermissionViewSet)
-router.register('students', StudentViewSet)
-router.register('groups', GroupViewSet)
+router.register('students', vs.StudentViewSet)
+router.register('groups', vs.GroupViewSet)
 
 
 urlpatterns = [
-    path('add_students/', StudentCreateAPIView.as_view(), name='add_students_view'),
+    path('students/create/', vs.StudentCreateAPIView.as_view(),
+         name='students-create'),
     path('', include(router.urls)),
 ]

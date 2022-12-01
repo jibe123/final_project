@@ -1,40 +1,25 @@
-from django.contrib.auth.models import Permission
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, mixins
 
 from .models import User, Student, Group
 from .permissions import IsSuperuser, IsManager
-from .serializers import (
-    NewStudentUserSerializer,
-    UserSerializer,
-    PermissionSerializer,
-    StudentSerializer,
-    GroupSerializer)
+import accounts.serializers as msz
 
 
 class StudentCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = NewStudentUserSerializer
+    serializer_class = msz.NewStudentUserSerializer
     queryset = User.objects.all()
     permission_classes = [IsSuperuser | IsManager]
 
 
-class PermissionViewSet(viewsets.ModelViewSet):
-    queryset = Permission.objects.all()
-    serializer_class = PermissionSerializer
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    permission_classes = (IsSuperuser,)
-
-
-class StudentViewSet(viewsets.ModelViewSet):
-    serializer_class = StudentSerializer
+class StudentViewSet(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
+    serializer_class = msz.StudentSerializer
     queryset = Student.objects.all()
-    permission_classes = (IsSuperuser,)
+    permission_classes = [IsSuperuser | IsManager]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    serializer_class = GroupSerializer
+    serializer_class = msz.GroupSerializer
     queryset = Group.objects.all()
-    permission_classes = (IsSuperuser,)
+    permission_classes = [IsSuperuser | IsManager]

@@ -11,8 +11,10 @@ admin.site.register(Student)
 
 
 class UserCreationForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password1 = forms.CharField(label='Password',
+                                widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Password confirmation',
+                                widget=forms.PasswordInput)
 
     class Meta:
         model = User
@@ -46,13 +48,14 @@ class UserAdmin(BaseUserAdmin):
 
     add_form = UserCreationForm
 
-    list_display = ('id', 'username', 'is_manager', 'is_teacher', 'is_student')
+    list_display = ('username', 'is_manager', 'is_teacher', 'is_student')
     list_filter = ()
     fieldsets = (
         (None, {'fields': ('username', 'password', 'is_manager',
                            'is_teacher', 'is_student', 'is_active',
                            'auto_password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'user_image')})
+        ('Personal info', {'fields': (
+            'first_name', 'last_name', 'email', 'user_image')})
     )
 
     add_fieldsets = (
