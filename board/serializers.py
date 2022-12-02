@@ -1,14 +1,14 @@
-from rest_framework import serializers
+from rest_framework import serializers as sz
 
 from accounts.models import User
 from .models import Thread, Message
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    threads = serializers.HyperlinkedRelatedField(
+class UserSerializer(sz.HyperlinkedModelSerializer):
+    threads = sz.HyperlinkedRelatedField(
         many=True, view_name='thread-detail',
         queryset=Thread.objects.all(), required=False)
-    messages = serializers.HyperlinkedRelatedField(
+    messages = sz.HyperlinkedRelatedField(
         many=True, view_name='message-detail',
         queryset=Message.objects.all(), required=False)
 
@@ -17,12 +17,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'username', 'threads', 'messages')
 
 
-class MessageSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    thread = serializers.HyperlinkedRelatedField(
+class MessageSerializer(sz.HyperlinkedModelSerializer):
+    owner = sz.ReadOnlyField(source='owner.username')
+    thread = sz.HyperlinkedRelatedField(
         many=False, view_name='thread-detail',
         queryset=Thread.objects.all(), required=False)
-    likes = serializers.PrimaryKeyRelatedField(
+    likes = sz.PrimaryKeyRelatedField(
         many=True,
         queryset=User.objects.all())
 
@@ -38,9 +38,9 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'body_text', 'owner', 'likes', 'thread')
 
 
-class ThreadSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    messages = serializers.HyperlinkedRelatedField(
+class ThreadSerializer(sz.HyperlinkedModelSerializer):
+    owner = sz.ReadOnlyField(source='owner.username')
+    messages = sz.HyperlinkedRelatedField(
         many=True, view_name='message-detail',
         queryset=Message.objects.all())
 

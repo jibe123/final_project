@@ -38,9 +38,8 @@ class GroupFactory(factory.django.DjangoModelFactory):
 class AccountsTest(APITestCase):
     def setUp(self):
         self.client = Client()
-        self.my_admin = User(username='admin', is_superuser=True)
-        self.my_admin.set_password('admin')
-        self.my_admin.save()
+        self.superuser = User.objects.create_superuser(
+            username='admin', password='admin')
         self.client.login(username='admin', password='admin')
         UserFactory.create_batch(50)
         GroupFactory.create_batch(5)
