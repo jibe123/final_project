@@ -11,7 +11,7 @@ urlpatterns = [
     path('api/v1/auth/', include('authusers.urls')),
     path('api/v1/board/', include('board.urls')),
     path('api/v1/news/', include('news.urls')),
-    path('api/v1/timetable/', include('timetable.urls')),
+    path('api/v1/study/', include('timetable.urls')),
 ]
 
 if settings.DEBUG:

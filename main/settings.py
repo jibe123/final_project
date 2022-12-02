@@ -1,7 +1,9 @@
 import os
+import logging.config
 from datetime import timedelta
 from pathlib import Path
 
+from corsheaders.defaults import default_headers
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -17,8 +19,14 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+if not DEBUG:
+    logging.info("Debugging is not enabled.")
+    ALLOWED_HOSTS = ["*"]
+    LOG_LEVEL = "ERROR"
+else:
+    logging.info("Debugging is enabled.")
+    ALLOWED_HOSTS = ["*"]
+    LOG_LEVEL = "DEBUG"
 
 # Application definition
 
@@ -55,8 +63,6 @@ INSTALLED_APPS = [
     'news.apps.NewsConfig',
     'timetable.apps.TimetableConfig',
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'main.urls'
 
@@ -117,11 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bishkek'
 
 USE_I18N = True
 
 USE_TZ = True
+
+TIME_INPUT_FORMATS = ('%H:%M',)
 
 
 # Static files (CSS, JavaScript, Images)
@@ -202,3 +210,45 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = config('EM_USER')
 EMAIL_HOST_PASSWORD = config('EM_PASSWORD')
 DEFAULT_FROM_EMAIL = 'jibek.k@gmail.com'
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+        # "file": {
+        #     "class": "logging.FileHandler",
+        #     "filename": "logs/debug.log",
+        #     "formatter": "console",
+        # },
+    },
+    "loggers": {
+        "": {
+            "level": LOG_LEVEL,
+            "handlers": ["console"],
+        },
+    },
+}
+
+logging.config.dictConfig(LOGGING)
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "observe",
+]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:4200",
+]
+CORS_ORIGIN_REGEX_WHITELIST = [
+    "http://localhost:4200",
+]

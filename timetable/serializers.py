@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CourseDay, Course, CourseMaterials
+from .models import Timetable, Course, CourseMaterials
 
 
 class GroupsUpdateSerializer(serializers.Serializer):
@@ -11,7 +11,7 @@ class GroupsUpdateSerializer(serializers.Serializer):
 
 class CourseDaySerializer(serializers.ModelSerializer):
     class Meta:
-        model = CourseDay
+        model = Timetable
         fields = '__all__'
 
 

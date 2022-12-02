@@ -40,7 +40,7 @@ class CourseMaterials(models.Model):
         verbose_name_plural = "Материалы по курсу"
 
 
-class TableDay(models.Model):
+class Weekdays(models.Model):
     class Day(models.IntegerChoices):
         MON = 1, "Понедельник"
         TUE = 2, "Вторник"
@@ -56,23 +56,47 @@ class TableDay(models.Model):
         return self.get_day_display()
 
     class Meta:
-        verbose_name = "День в расписании"
-        verbose_name_plural = "Дни в расписании"
+        verbose_name = "День недели"
+        verbose_name_plural = "Дни недели"
 
 
-class CourseDay(models.Model):
+class StartTimes(models.Model):
+    START_TIME_CHOICES = (
+        (1, "08:00"),
+        (2, "09:30"),
+        (3, "11:00"),
+        (4, "13:00"),
+        (5, "14:30"),
+        (6, "16:00"),
+        (7, "17:30"),
+    )
+    start_time = models.PositiveSmallIntegerField(
+        choices=START_TIME_CHOICES, default=1, verbose_name="Время начала")
+
+    def __str__(self):
+        return self.get_start_time_display()
+
+    class Meta:
+        verbose_name = "Время начала в расписании"
+        verbose_name_plural = "Времена начала в расписании"
+
+
+class Timetable(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="course_days",
         verbose_name="Курс")
-    table_day = models.ForeignKey(
-        TableDay, on_delete=models.CASCADE, related_name="table_days",
-        verbose_name="День в расписании")
-    start_time = models.TimeField(
-        blank=True, null=True, verbose_name="Время начала занятий")
+    weekday = models.ForeignKey(
+        Weekdays, on_delete=models.CASCADE, related_name="weekdays",
+        verbose_name="День недели")
+    start_time = models.ForeignKey(
+        StartTimes, on_delete=models.CASCADE, related_name='start_times',
+        verbose_name="Время начала занятий")
 
     def __str__(self):
-        return f"{self.course} в {self.table_day.get_day_display()} в {self.start_time}"
+        return f"{self.course} в {self.weekday.get_day_display()}" \
+               f" в {self.start_time.get_start_time_display()}"
 
     class Meta:
         verbose_name = "Расписание курса"
         verbose_name_plural = "Расписание курсов"
+        unique_together = ('course', 'weekday', 'start_time',)
