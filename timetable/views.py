@@ -6,17 +6,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from accounts.permissions import IsSuperuser, IsManager
 from accounts.models import Group
 from .models import Course, CourseDay, CourseMaterials
-from .serializers import (
-    GroupsUpdateSerializer,
-    CourseDaySerializer,
-    CourseSerializer,
-    CourseMaterialsSerializer)
+import timetable.serializers as msz
 
 
 @api_view(['POST'])
 @permission_classes([IsSuperuser | IsManager])
 def update_groups_data(request):
-    serializer = GroupsUpdateSerializer(data=request.data)
+    serializer = msz.GroupsUpdateSerializer(data=request.data)
     if serializer.is_valid():
         input_data = serializer.validated_data
         course_id = input_data.get('course_id')
@@ -37,17 +33,17 @@ def update_groups_data(request):
 
 
 class TimetableViewSet(viewsets.ModelViewSet):
-    serializer_class = CourseDaySerializer
+    serializer_class = msz.CourseDaySerializer
     queryset = CourseDay.objects.all()
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser]
-    serializer_class = CourseSerializer
+    serializer_class = msz.CourseSerializer
     queryset = Course.objects.all()
 
 
 class CourseMaterialsViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser,)
-    serializer_class = CourseMaterialsSerializer
+    serializer_class = msz.CourseMaterialsSerializer
     queryset = CourseMaterials.objects.all()

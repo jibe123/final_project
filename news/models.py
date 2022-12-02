@@ -9,7 +9,7 @@ class News(models.Model):
     news_text = models.TextField(
         verbose_name="Текст")
     date_posted = models.DateTimeField(
-        auto_now_add=True, verbose_name="Дата опубликования")
+        auto_now_add=True, verbose_name="Дата публикации")
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="news",
         verbose_name="Владелец")

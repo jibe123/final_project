@@ -5,7 +5,7 @@ from .models import News
 from .views import NewsViewSet
 
 router = DefaultRouter()
-router.register("news", NewsViewSet)
+router.register(r'', NewsViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

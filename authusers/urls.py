@@ -8,8 +8,8 @@ from rest_framework_simplejwt.views import (
 import authusers.views as vs
 
 urlpatterns = [
-    path('token/', TokenObtainPairView.as_view(),
-         name='token_obtain_pair'),
+    path('login/', TokenObtainPairView.as_view(),
+         name='login'),
     path('token/refresh/', TokenRefreshView.as_view(),
          name='token_refresh'),
     path('password_reset/', include(

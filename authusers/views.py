@@ -1,4 +1,3 @@
-from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -8,14 +7,13 @@ from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from django_rest_passwordreset.models import ResetPasswordToken
 from django_rest_passwordreset.signals import reset_password_token_created
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from rest_framework.views import APIView
 
 from accounts.models import User
-from .serializers import ChangePasswordSerializer, ChangeProfilePhotoSerializer
+import authusers.serializers as msz
 
 
 @receiver(post_save, sender=User)
@@ -36,7 +34,8 @@ def reset_password(sender, instance, created, *args, **kwargs):
 
 
 @receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+def password_reset_token_created(sender, instance, reset_password_token,
+                                 *args, **kwargs):
     email_plaintext_message = reset_password_token.key
 
     send_mail(
@@ -52,23 +51,24 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 
 
 class ChangePasswordView(generics.UpdateAPIView):
-    serializer_class = ChangePasswordSerializer
-    model = User
-    permission_classes = (IsAuthenticated,)
+    serializer_class = msz.ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, queryset=None):
         obj = self.request.user
         return obj
 
     def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        obj = self.get_object()
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            if not self.object.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-            self.object.set_password(serializer.data.get("new_password"))
-            self.object.save()
+            if not obj.check_password(
+                    serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]},
+                                status=status.HTTP_400_BAD_REQUEST)
+            obj.set_password(serializer.data.get("new_password"))
+            obj.save()
             response = {
                 'status': 'success',
                 'code': status.HTTP_200_OK,
@@ -86,9 +86,9 @@ class ChangeProfilePhotoView(APIView):
 
     @csrf_exempt
     def post(self, request, *args, **kwargs):
-        serializer = ChangeProfilePhotoSerializer(data=request.data)
+        serializer = msz.ChangeProfilePhotoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(status=204)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response(status=400)
+            return Response(status=status.HTTP_400_BAD_REQUEST)

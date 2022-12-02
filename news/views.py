@@ -3,7 +3,8 @@ from rest_framework.permissions import AllowAny
 
 from .serializers import NewsSerializer
 from .models import News
-from .permissions import IsSuperuser, IsOwner, IsManager
+from accounts.permissions import IsSuperuser
+from .permissions import IsOwner, IsManager
 
 
 class NewsViewSet(viewsets.ModelViewSet):

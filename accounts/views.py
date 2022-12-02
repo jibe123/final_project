@@ -1,8 +1,8 @@
 from rest_framework import generics, viewsets, mixins
 
+import accounts.serializers as msz
 from .models import User, Student, Group
 from .permissions import IsSuperuser, IsManager
-import accounts.serializers as msz
 
 
 class StudentCreateAPIView(generics.ListCreateAPIView):

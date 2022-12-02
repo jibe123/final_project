@@ -1,18 +1,18 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions as ps, viewsets
 
 from accounts.models import User
 from accounts.permissions import IsSuperuser
 from .permissions import IsOwnerOrReadOnly
 from .models import Thread, Message
-from .serializers import UserSerializer, ThreadSerializer, MessageSerializer
+import board.serializers as msz
 
 
 class MessageViewSet(viewsets.ModelViewSet):
 
     queryset = Message.objects.all()
-    serializer_class = MessageSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly,)
+    serializer_class = msz.MessageSerializer
+    permission_classes = [ps.IsAuthenticatedOrReadOnly |
+                          IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -20,9 +20,9 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 class ThreadViewSet(viewsets.ModelViewSet):
     queryset = Thread.objects.all()
-    serializer_class = ThreadSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly,)
+    serializer_class = msz.ThreadSerializer
+    permission_classes = [ps.IsAuthenticatedOrReadOnly |
+                          IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -30,5 +30,5 @@ class ThreadViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (IsSuperuser,)
+    serializer_class = msz.UserSerializer
+    permission_classes = [IsSuperuser]
