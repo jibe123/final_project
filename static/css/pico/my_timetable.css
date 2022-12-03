@@ -1,0 +1,5 @@
+td:first-child {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

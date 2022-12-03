@@ -4,9 +4,9 @@ from .models import Timetable, Course, CourseMaterials
 
 
 class TimetableSerializer(sz.ModelSerializer):
-    course = sz.StringRelatedField(read_only=True)
-    weekday = sz.StringRelatedField(read_only=True)
-    start_time = sz.StringRelatedField(read_only=True)
+    course = sz.StringRelatedField()
+    weekday = sz.StringRelatedField()
+    start_time = sz.StringRelatedField()
 
     class Meta:
         model = Timetable

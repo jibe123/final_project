@@ -50,7 +50,8 @@ class Weekdays(models.Model):
         SAT = 6, "Суббота"
 
     day = models.PositiveSmallIntegerField(
-        choices=Day.choices, default=Day.MON, verbose_name="День недели")
+        primary_key=True, choices=Day.choices,
+        default=Day.MON, verbose_name="День недели")
 
     def __str__(self):
         return self.get_day_display()
@@ -71,7 +72,8 @@ class StartTimes(models.Model):
         (7, "17:30"),
     )
     start_time = models.PositiveSmallIntegerField(
-        choices=START_TIME_CHOICES, default=1, verbose_name="Время начала")
+        primary_key=True, choices=START_TIME_CHOICES,
+        default=1, verbose_name="Время начала")
 
     def __str__(self):
         return self.get_start_time_display()
