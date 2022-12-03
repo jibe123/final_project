@@ -1,33 +1,33 @@
-from rest_framework import serializers
+from rest_framework import serializers as sz
 
 from .models import Timetable, Course, CourseMaterials
 
 
-class GroupsUpdateSerializer(serializers.Serializer):
-    group_id = serializers.IntegerField()
-    course_id = serializers.IntegerField()
-    mode = serializers.CharField()
+class TimetableSerializer(sz.ModelSerializer):
+    course = sz.StringRelatedField(read_only=True)
+    weekday = sz.StringRelatedField(read_only=True)
+    start_time = sz.StringRelatedField(read_only=True)
 
-
-class CourseDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Timetable
         fields = '__all__'
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    materials = serializers.SerializerMethodField()
+class CourseSerializer(sz.ModelSerializer):
+    materials = sz.SerializerMethodField()
 
     def get_materials(self, obj):
         materials = CourseMaterials.objects.filter(course=obj)
-        return CourseMaterialsSerializer(materials, many=True, read_only=True).data
+        return CourseMaterialsSerializer(
+            materials, many=True, read_only=True).data
 
     class Meta:
         model = Course
-        fields = ('id', 'title', 'duration', 'teacher', 'groups', 'materials')
+        fields = ('id', 'title', 'duration', 'teacher',
+                  'groups', 'materials')
 
 
-class CourseMaterialsSerializer(serializers.ModelSerializer):
+class CourseMaterialsSerializer(sz.ModelSerializer):
     class Meta:
         model = CourseMaterials
         fields = '__all__'

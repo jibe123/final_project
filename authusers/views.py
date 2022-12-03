@@ -1,3 +1,5 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -6,11 +8,14 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django_rest_passwordreset.models import ResetPasswordToken
 from django_rest_passwordreset.signals import reset_password_token_created
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from accounts.models import User
 import authusers.serializers as msz
@@ -92,3 +97,11 @@ class ChangeProfilePhotoView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = TokenObtainPairSerializer
+    renderer_classes = (TemplateHTMLRenderer, JSONRenderer,)
+    template_name = "authusers/login.html"
+
+    def get(self, request):
+        return Response({"Hello": "Hi!!!"})

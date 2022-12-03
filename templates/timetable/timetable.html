@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Timetable</title>
+</head>
+<body>
+{% block container %}
+<table>
+    <tr>
+        <th>Курс</th>
+        <th>День недели</th>
+        <th>Время начала</th>
+    </tr>
+    {% for item in data %}
+    <tr>
+        <td>{{ item.course }}</td>
+        <td>{{ item.weekday }}</td>
+        <td>{{ item.start_time }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+</body>
+</html>
