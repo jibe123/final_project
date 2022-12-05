@@ -14,7 +14,7 @@ import timetable.serializers as msz
 
 
 class TimetableViewSet(viewsets.ModelViewSet):
-    serializer_class = msz.TimetableGroupedSerializer
+    serializer_class = msz.TimetableSerializer
     queryset = Timetable.objects.all()
 
 
