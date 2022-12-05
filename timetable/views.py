@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from accounts.permissions import IsSuperuser, IsManager
@@ -16,6 +16,18 @@ import timetable.serializers as msz
 class TimetableViewSet(viewsets.ModelViewSet):
     serializer_class = msz.TimetableSerializer
     queryset = Timetable.objects.all()
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsSuperuser | IsManager]
+
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsSuperuser | IsManager]
+
+        else:
+            permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -37,7 +49,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             permission_classes = [IsSuperuser | IsManager]
 
-        if self.action == 'materials':
+        elif self.action == 'materials':
             permission_classes = [
                 IsSuperuser | IsCourseTeacher | IsCourseStudent]
 
