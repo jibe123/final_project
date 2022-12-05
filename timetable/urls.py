@@ -5,9 +5,9 @@ import timetable.views as vs
 
 router = DefaultRouter()
 
-router.register(r'timetable', vs.TimetableViewSet)
-router.register(r'courses', vs.CourseViewSet)
-router.register(r'upload_materials', vs.CourseMaterialsViewSet)
+router.register('timetable', vs.TimetableViewSet)
+router.register('courses', vs.CourseViewSet, basename='courses')
+router.register('materials', vs.CourseMaterialsViewSet, basename='materials')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,28 +1,28 @@
-from rest_framework import serializers
+from rest_framework import serializers as sz
 
 from accounts.models import User
-from .models import Assignment, Question, Choice, GradedAssignment
+import assignments.models as md
 
 
-class StringSerializer(serializers.StringRelatedField):
+class StringSerializer(sz.StringRelatedField):
     def to_internal_value(self, value):
         return value
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(sz.ModelSerializer):
     choices = StringSerializer(many=True)
 
     class Meta:
-        model = Question
-        fields = ('id', 'choices', 'question', 'order')
+        model = md.Question
+        fields = ('id', 'choices', 'title', 'order')
 
 
-class AssignmentSerializer(serializers.ModelSerializer):
-    questions = serializers.SerializerMethodField()
+class AssignmentSerializer(sz.ModelSerializer):
+    questions = sz.SerializerMethodField()
     teacher = StringSerializer(many=False)
 
     class Meta:
-        model = Assignment
+        model = md.Assignment
         fields = '__all__'
 
     def get_questions(self, obj):
@@ -31,8 +31,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     def create(self, request):
         data = request.data
+        print(data)
 
-        assignment = Assignment()
+        assignment = md.Assignment()
         teacher = User.objects.get(username=data['teacher'])
         assignment.teacher = teacher
         assignment.title = data['title']
@@ -40,39 +41,39 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
         order = 1
         for q in data['questions']:
-            newQ = Question()
-            newQ.question = q['title']
+            newQ = md.Question()
+            newQ.title = q['title']
             newQ.order = order
             newQ.save()
 
             for c in q['choices']:
-                newC = Choice()
+                newC = md.Choice()
                 newC.title = c
                 newC.save()
                 newQ.choices.add(newC)
 
-            newQ.answer = Choice.objects.get(title=q['answer'])
+            newQ.answer = md.Choice.objects.get(title=q['answer'])
             newQ.assignment = assignment
             newQ.save()
             order += 1
         return assignment
 
 
-class GradedAssignmentSerializer(serializers.ModelSerializer):
+class GradedAssignmentSerializer(sz.ModelSerializer):
     student = StringSerializer(many=False)
 
     class Meta:
-        model = GradedAssignment
+        model = md.GradedAssignment
         fields = '__all__'
 
     def create(self, request):
         data = request.data
         print(data)
 
-        assignment = Assignment.objects.get(id=data['asntId'])
+        assignment = md.Assignment.objects.get(id=data['asntId'])
         student = User.objects.get(username=data['username'])
 
-        graded_asnt = GradedAssignment()
+        graded_asnt = md.GradedAssignment()
         graded_asnt.assignment = assignment
         graded_asnt.student = student
 
