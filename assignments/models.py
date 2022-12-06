@@ -34,10 +34,11 @@ class GradedAssignment(models.Model):
         verbose_name_plural = "Оцененные задания"
 
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, verbose_name="Студент")
+        Student, on_delete=models.CASCADE, related_name="graded_assignments",
+        verbose_name="Студент")
     assignment = models.ForeignKey(
         Assignment, on_delete=models.SET_NULL, blank=True, null=True,
-        verbose_name="Задание")
+        related_name="graded_assignments", verbose_name="Задание")
     grade = models.FloatField(verbose_name="Оценка")
 
     def __str__(self):
@@ -50,10 +51,12 @@ class Question(models.Model):
         verbose_name_plural = "Вопросы"
 
     title = models.CharField(
-        max_length=255, null=True, blank=True, verbose_name="Вопрос")
+        max_length=2000, verbose_name="Вопрос")
     type = models.PositiveSmallIntegerField(
         choices=TYPES, default=1, verbose_name="Тип вопроса")
-    text = models.CharField(max_length=2000, verbose_name='Текст вопроса')
+    text = models.CharField(
+        max_length=2000, null=True, blank=True,
+        verbose_name='Текст вопроса и/или вес в общей оценке')
     assignment = models.ForeignKey(
         Assignment, on_delete=models.DO_NOTHING, related_name='questions',
         blank=True, null=True, verbose_name="Задание")
@@ -71,8 +74,8 @@ class Choice(models.Model):
     question = models.ForeignKey(
         Question, on_delete=models.DO_NOTHING, related_name='choices',
         blank=True, null=True, verbose_name="Вопрос")
-    title = models.CharField(max_length=255,
-                            verbose_name="Текст варианта")
+    title = models.CharField(
+        max_length=255, verbose_name="Текст варианта")
     is_correct = models.BooleanField(default=False,
                                      verbose_name="Правильный вариант?")
 
@@ -85,17 +88,20 @@ class Answer(models.Model):
         verbose_name = "Ответ"
         verbose_name_plural = "Ответы"
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE,
-                                verbose_name='Студент')
-    answered_question = models.ForeignKey(Question, on_delete=models.CASCADE,
-                                          verbose_name='Ответ на вопрос')
-    answer_choice = models.ForeignKey(Choice, on_delete=models.CASCADE,
-                                      null=True, blank=True,
-                                      verbose_name='Выбранный вариант')
-    answer_text = models.CharField(max_length=2000, null=True, blank=True,
-                                   verbose_name='Текст ответа')
-    created = models.DateTimeField(auto_now_add=True,
-                                   verbose_name='Время сдачи')
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name='answers',
+        verbose_name='Студент', )
+    answered_question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='answers',
+        verbose_name='Ответ на вопрос')
+    answer_choice = models.ForeignKey(
+        Choice, on_delete=models.CASCADE, null=True, blank=True,
+        related_name='answers', verbose_name='Выбранный вариант')
+    answer_text = models.CharField(
+        max_length=2000, null=True, blank=True,
+        verbose_name='Текст ответа')
+    created = models.DateTimeField(
+        auto_now_add=True, verbose_name='Время сдачи')
 
     def __str__(self):
         return f'{self.student} - {self.answered_question} - ' \

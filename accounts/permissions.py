@@ -23,7 +23,7 @@ class IsManager(BasePermission):
             return True if request.user.is_manager else False
 
     def has_object_permission(self, request, view, obj):
-        if request.user is AnonymousUser:
+        if request.user.is_anonymous:
             return False
         else:
             return True if request.user.is_manager else False

@@ -1,4 +1,3 @@
-import django_filters
 from rest_framework import serializers as sz
 
 from .models import (
