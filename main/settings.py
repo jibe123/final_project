@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'corsheaders',
     'drf_yasg',
+    'nested_admin',
 
     'accounts.apps.AccountsConfig',
     'assignments.apps.AssignmentsConfig',
@@ -157,7 +158,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
@@ -253,4 +254,18 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     "http://localhost:4200",
 ]
 
-LOGIN_REDIRECT_URL = 'main:news'
+LOGIN_REDIRECT_URL = '/api/v1/news'
+
+# Настройки drf-yasg
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    },
+    'LOGIN_URL': 'basic',
+    'LOGOUT_URL': 'logout'
+}
+
+# Снятие ограничений доступа
+SWAGGER_SETTINGS['SECURITY_DEFINITIONS']['basic']['type'] = 'none'

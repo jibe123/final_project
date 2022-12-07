@@ -8,5 +8,5 @@ router = DefaultRouter()
 router.register(r'', NewsViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', include(router.urls), name='news'),
 ]

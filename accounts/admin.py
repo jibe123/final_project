@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
 
 from .models import User, Group, Student
 
@@ -41,7 +43,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'password', 'email')
+        fields = '__all__'
 
 
 class UserAdmin(BaseUserAdmin):
@@ -55,7 +57,18 @@ class UserAdmin(BaseUserAdmin):
                            'is_teacher', 'is_student', 'is_active',
                            'auto_password')}),
         ('Personal info', {'fields': (
-            'first_name', 'last_name', 'email', 'user_image')})
+            'first_name', 'last_name', 'email', 'user_image')}),
+            (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_staff",
+                    "groups",
+                    "user_permissions",
+                ),
+            },
+        ),
+        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
 
     add_fieldsets = (
