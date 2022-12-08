@@ -1,5 +1,5 @@
 from rest_framework import serializers as sz
-from accounts.models import User, Student
+from accounts.models import Student
 import assignments.models as md
 
 
@@ -11,7 +11,7 @@ class AssignmentsListSerializer(sz.ModelSerializer):
     questions_count = sz.SerializerMethodField()
 
     def get_questions_count(self, obj):
-        return obj.question_set.all().count()
+        return obj.questions.count()
 
 
 class ChoiceSerializer(sz.ModelSerializer):
@@ -33,11 +33,24 @@ class AnswersSerializer(sz.ModelSerializer):
         fields = '__all__'
 
 
+class TestAnswersSerializer(sz.ModelSerializer):
+    class Meta:
+        model = md.Answer
+        fields = ('id', 'student', 'answer_text', 'question', 'choice',)
+
+    def get_fields(self, *args, **kwargs):
+        fields = super(TestAnswersSerializer, self).get_fields(*args, **kwargs)
+        view = self.context['view']
+        question_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk
+        fields['choice'].queryset = fields['choice'].queryset.filter(question=question_id)
+        return fields
+
+
 class AssignmentsSerializer(sz.ModelSerializer):
     completed = sz.SerializerMethodField()
     progress = sz.SerializerMethodField()
     questions_count = sz.SerializerMethodField()
-    score = sz.SerializerMethodField()
+    grade = sz.SerializerMethodField()
 
     class Meta:
         model = md.Assignment
@@ -48,7 +61,8 @@ class AssignmentsSerializer(sz.ModelSerializer):
     def get_completed(self, obj):
         try:
             student = md.StudentAssignment.objects.get(
-                student=self.context['request'].user, assignment=obj)
+                student=Student.objects.get(
+                    pk=self.context['request'].user.pk), assignment=obj)
             return student.completed
         except md.StudentAssignment.DoesNotExist:
             return None
@@ -56,23 +70,25 @@ class AssignmentsSerializer(sz.ModelSerializer):
     def get_progress(self, obj):
         try:
             student = md.StudentAssignment.objects.get(
-                student=self.context['request'].user, assignment=obj)
+                student=Student.objects.get(
+                    pk=self.context['request'].user.pk), assignment=obj)
             if student.completed is False:
                 questions_answered = md.Answer.objects.filter(
-                    student=student, answer__isnull=False).count()
-                total_questions = obj.question_set.all().count()
+                    student=student, choice__isnull=False).count()
+                total_questions = obj.questions.all().count()
                 return int(questions_answered / total_questions)
             return None
         except md.StudentAssignment.DoesNotExist:
             return None
 
     def get_questions_count(self, obj):
-        return obj.question_set.all().count()
+        return obj.questions.all().count()
 
     def get_grade(self, obj):
         try:
             student = md.StudentAssignment.objects.get(
-                student=self.context['request'].user, assignment=obj)
+                student=Student.objects.get(
+                    pk=self.context['request'].user.pk), assignment=obj)
             if student.completed is True:
                 return student.grade
             return None
@@ -108,17 +124,18 @@ class AssignmentDetailSerializer(sz.ModelSerializer):
 
 
 class AssignmentResultSerializer(sz.ModelSerializer):
-    student_set = sz.SerializerMethodField()
-    question_set = QuestionSerializer(many=True)
+    st_assignments = sz.SerializerMethodField()
+    grade = sz.HiddenField(default=0)
 
     class Meta:
-        model = md.Assignment
+        model = md.StudentAssignment
         fields = '__all__'
 
-    def get_student_set(self, obj):
+    def get_st_assignments(self, obj):
         try:
             student = md.StudentAssignment.objects.get(
-                student=self.context['request'].user, assignment=obj)
+                student=Student.objects.get(
+                    pk=self.context['request'].user.pk), assignment=obj)
             serializer = StudentAssignmentSerializer(student)
             return serializer.data
         except md.StudentAssignment.DoesNotExist:

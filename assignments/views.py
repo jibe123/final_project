@@ -1,12 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_201_CREATED,
-    HTTP_400_BAD_REQUEST
-)
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -21,7 +16,8 @@ class MyAssignmentListAPI(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         queryset = md.Assignment.objects.filter(
-            st_assignments__student=self.request.user)
+            st_assignments__student=md.Student.objects.get(
+                user=self.request.user))
         query = self.request.GET.get("q")
 
         if query:
@@ -37,8 +33,11 @@ class AssignmentListAPI(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
-        queryset = md.Assignment.objects.exclude(
-            st_assignments__student=self.request.user)
+        queryset = md.Assignment.objects.filter(
+            course__in=Student.objects.get(
+                pk=self.request.user).group.courses.all()).exclude(
+            st_assignments__student=md.Student.objects.get(
+                user=self.request.user))
         query = self.request.GET.get("q")
 
         if query:
@@ -77,14 +76,12 @@ class AssignmentDetailAPI(generics.RetrieveAPIView):
                          'last_question_id': last_question})
 
 
-class SaveAnswer(generics.UpdateAPIView):
-    serializer_class = msz.AnswersSerializer
+class SaveAnswer(generics.RetrieveUpdateAPIView):
+    serializer_class = msz.TestAnswersSerializer
     permission_classes = [IsAuthenticated]
 
-    # def get_queryset(self):
-    #     slug = self.kwargs["slug"]
-    #     assignment = get_object_or_404(md.Assignment, slug=slug)
-    #     return assignment.filter()
+    def get_queryset(self):
+        return md.Answer.objects.filter(id=self.kwargs["pk"])
 
     def patch(self, request, *args, **kwargs):
         student_id = request.data['student']
@@ -114,12 +111,12 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        student_id = request.data['student']
-        question_id = request.data['question']
-        choice_id = request.data['choice']
+        student = Student.objects.get(pk=self.request.user)
+        # question = request.data['question']
+        # choice = request.data['choice']
 
-        student = get_object_or_404(md.StudentAssignment, id=student_id)
-        question = get_object_or_404(md.Question, id=question_id)
+        student = get_object_or_404(md.StudentAssignment, student=student)
+        # question = get_object_or_404(md.Question, id=question.pk)
 
         assignment = md.Assignment.objects.get(
             slug=self.kwargs['slug'])
@@ -132,25 +129,26 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
                 status=status.HTTP_412_PRECONDITION_FAILED
             )
 
-        if choice_id is not None:
-            choice = get_object_or_404(md.Choice, id=choice_id)
-            obj = get_object_or_404(
-                md.Answer, student=student, question=question)
-            obj.choice = choice
-            obj.save()
+        # if choice is not None:
+        #     choice = get_object_or_404(md.Choice, id=choice.pk)
+        #     obj = get_object_or_404(
+        #         md.Answer, student=student, question=question)
+        #     obj.choice = choice
+        #     obj.save()
 
         student.completed = True
         correct_answers = 0
 
         for answer in md.Answer.objects.filter(student=student):
-            choice = md.Choice.objects.get(question=md.Answer.question,
+            choice = md.Choice.objects.get(question=answer.question,
                                            is_correct=True)
             print(choice)
             print(answer.choice)
             if answer.choice == choice:
                 correct_answers += 1
 
-        student.grade = int(correct_answers / student.assignment.question_set.count() * 100)
+        student.grade = int(correct_answers /
+                            student.assignment.questions.count() * 100)
         print(student.grade)
         student.save()
 

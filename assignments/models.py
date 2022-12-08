@@ -69,8 +69,10 @@ class StudentAssignment(models.Model):
         Assignment, on_delete=models.SET_NULL, related_name='st_assignments',
         blank=True, null=True, verbose_name="Задание")
     grade = models.FloatField(default=0, verbose_name="Оценка")
-    completed = models.BooleanField(default=False, verbose_name="Выполнено?")
-    date_completed = models.DateTimeField(null=True, verbose_name="Дата сдачи")
+    completed = models.BooleanField(
+        default=False, verbose_name="Выполнено?")
+    date_completed = models.DateTimeField(
+        null=True, auto_now_add=True, verbose_name="Дата сдачи")
     created = models.DateTimeField(
         auto_now_add=True, verbose_name='Дата создания')
 
@@ -101,5 +103,5 @@ class Answer(models.Model):
 
 
 @receiver(pre_save, sender=Assignment)
-def slugify_name(sender, instance, *args, **kwargs):
-    instance.slug = slugify(instance.title)
+def slugify_title(sender, instance, *args, **kwargs):
+    instance.slug = slugify(instance.title, allow_unicode=True)
