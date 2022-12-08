@@ -20,8 +20,8 @@ urlpatterns = [
          name='change-password'),
     path('change_profile_photo/', vs.ChangeProfilePhotoView.as_view(),
          name='change-profile-photo'),
-    path('login/', LoginView.as_view(
-        template_name='admin/login.html'), name='login'),
-    path('logout/', LogoutView.as_view(
-        template_name='admin/logout.html'), name='logout'),
+    # path('login/', LoginView.as_view(
+    #     template_name='admin/login.html'), name='login'),
+    # path('logout/', LogoutView.as_view(
+    #     template_name='admin/logout.html'), name='logout'),
 ]
