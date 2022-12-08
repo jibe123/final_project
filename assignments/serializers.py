@@ -42,7 +42,11 @@ class TestAnswersSerializer(sz.ModelSerializer):
         fields = super(TestAnswersSerializer, self).get_fields(*args, **kwargs)
         view = self.context['view']
         question_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk
+        student_asnmt_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).student.pk
+        student_id = md.StudentAssignment.objects.get(pk=student_asnmt_id).student.pk
         fields['choice'].queryset = fields['choice'].queryset.filter(question=question_id)
+        fields['student'].queryset = fields['student'].queryset.filter(student=student_id)
+        fields['question'].queryset = fields['question'].queryset.filter(pk=question_id)
         return fields
 
 
@@ -51,12 +55,13 @@ class AssignmentsSerializer(sz.ModelSerializer):
     progress = sz.SerializerMethodField()
     questions_count = sz.SerializerMethodField()
     grade = sz.SerializerMethodField()
+    graded = sz.SerializerMethodField()
 
     class Meta:
         model = md.Assignment
         fields = ('id', 'title', 'questions_count',
-                  'completed', 'grade', 'progress')
-        read_only_fields = ('questions_count', 'completed', 'progress',)
+                  'completed', 'grade', 'progress', 'graded')
+        read_only_fields = ('questions_count', 'completed', 'progress', 'graded')
 
     def get_completed(self, obj):
         try:
@@ -76,7 +81,7 @@ class AssignmentsSerializer(sz.ModelSerializer):
                 questions_answered = md.Answer.objects.filter(
                     student=student, choice__isnull=False).count()
                 total_questions = obj.questions.all().count()
-                return int(questions_answered / total_questions)
+                return str(questions_answered / total_questions * 100)+'%'
             return None
         except md.StudentAssignment.DoesNotExist:
             return None
@@ -92,6 +97,15 @@ class AssignmentsSerializer(sz.ModelSerializer):
             if student.completed is True:
                 return student.grade
             return None
+        except md.StudentAssignment.DoesNotExist:
+            return None
+
+    def get_graded(self, obj):
+        try:
+            student = md.StudentAssignment.objects.get(
+                student=Student.objects.get(
+                    pk=self.context['request'].user.pk), assignment=obj)
+            return student.graded
         except md.StudentAssignment.DoesNotExist:
             return None
 
@@ -124,19 +138,23 @@ class AssignmentDetailSerializer(sz.ModelSerializer):
 
 
 class AssignmentResultSerializer(sz.ModelSerializer):
-    st_assignments = sz.SerializerMethodField()
     grade = sz.HiddenField(default=0)
 
     class Meta:
         model = md.StudentAssignment
         fields = '__all__'
 
-    def get_st_assignments(self, obj):
-        try:
-            student = md.StudentAssignment.objects.get(
-                student=Student.objects.get(
-                    pk=self.context['request'].user.pk), assignment=obj)
-            serializer = StudentAssignmentSerializer(student)
-            return serializer.data
-        except md.StudentAssignment.DoesNotExist:
-            return None
+    def get_fields(self, *args, **kwargs):
+        fields = super(
+            AssignmentResultSerializer, self).get_fields(*args, **kwargs)
+        view = self.context['view']
+        assignment_id = md.Assignment.objects.get(
+            slug=view.kwargs.get('slug'))
+        student_asnmt_id = md.StudentAssignment.objects.get(
+            student=self.context['request'].user.pk)
+        fields['assignment'].queryset = \
+            fields['assignment'].queryset.filter(pk=assignment_id.pk)
+        fields['student'].queryset = \
+            fields['student'].queryset.filter(
+                st_assignments=student_asnmt_id)
+        return fields

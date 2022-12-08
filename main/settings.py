@@ -161,6 +161,7 @@ REST_FRAMEWORK = {
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
 }
 
 AUTHENTICATION_BACKENDS = [

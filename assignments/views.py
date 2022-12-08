@@ -111,15 +111,8 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        student = Student.objects.get(pk=self.request.user)
-        # question = request.data['question']
-        # choice = request.data['choice']
-
+        student = request.data['student']
         student = get_object_or_404(md.StudentAssignment, student=student)
-        # question = get_object_or_404(md.Question, id=question.pk)
-
-        assignment = md.Assignment.objects.get(
-            slug=self.kwargs['slug'])
 
         if student.completed:
             return Response({
@@ -129,27 +122,17 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
                 status=status.HTTP_412_PRECONDITION_FAILED
             )
 
-        # if choice is not None:
-        #     choice = get_object_or_404(md.Choice, id=choice.pk)
-        #     obj = get_object_or_404(
-        #         md.Answer, student=student, question=question)
-        #     obj.choice = choice
-        #     obj.save()
-
         student.completed = True
         correct_answers = 0
 
         for answer in md.Answer.objects.filter(student=student):
             choice = md.Choice.objects.get(question=answer.question,
                                            is_correct=True)
-            print(choice)
-            print(answer.choice)
             if answer.choice == choice:
                 correct_answers += 1
 
         student.grade = int(correct_answers /
                             student.assignment.questions.count() * 100)
-        print(student.grade)
         student.save()
 
-        return Response(self.get_serializer(assignment).data)
+        return Response(status=status.HTTP_202_ACCEPTED)

@@ -75,6 +75,7 @@ class StudentAssignment(models.Model):
         null=True, auto_now_add=True, verbose_name="Дата сдачи")
     created = models.DateTimeField(
         auto_now_add=True, verbose_name='Дата создания')
+    graded = models.BooleanField(default=False)
 
     def __str__(self):
         return self.student.user.username
