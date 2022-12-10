@@ -264,7 +264,7 @@ SWAGGER_SETTINGS = {
             'type': 'basic'
         }
     },
-    'LOGIN_URL': 'basic',
+    'LOGIN_URL': 'login',
     'LOGOUT_URL': 'logout'
 }
 

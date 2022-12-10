@@ -38,16 +38,16 @@ class TestAnswersSerializer(sz.ModelSerializer):
         model = md.Answer
         fields = ('id', 'student', 'answer_text', 'question', 'choice',)
 
-    def get_fields(self, *args, **kwargs):
-        fields = super(TestAnswersSerializer, self).get_fields(*args, **kwargs)
-        view = self.context['view']
-        question_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk
-        student_asnmt_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).student.pk
-        student_id = md.StudentAssignment.objects.get(pk=student_asnmt_id).student.pk
-        fields['choice'].queryset = fields['choice'].queryset.filter(question=question_id)
-        fields['student'].queryset = fields['student'].queryset.filter(student=student_id)
-        fields['question'].queryset = fields['question'].queryset.filter(pk=question_id)
-        return fields
+    # def get_fields(self, *args, **kwargs):
+    #     fields = super(TestAnswersSerializer, self).get_fields(*args, **kwargs)
+    #     view = self.context['view']
+    #     # question_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk
+    #     # student_asnmt_id = md.Answer.objects.get(pk=view.kwargs.get('pk')).student.pk
+    #     # student_id = md.StudentAssignment.objects.get(pk=student_asnmt_id).student.pk
+    #     fields['choice'].queryset = fields['choice'].queryset.filter(question=md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk)
+    #     fields['student'].queryset = fields['student'].queryset.filter(student=md.StudentAssignment.objects.get(pk=md.Answer.objects.get(pk=view.kwargs.get('pk')).student.pk).student.pk)
+    #     fields['question'].queryset = fields['question'].queryset.filter(pk=md.Answer.objects.get(pk=view.kwargs.get('pk')).question.pk)
+    #     return fields
 
 
 class AssignmentsSerializer(sz.ModelSerializer):
@@ -144,17 +144,17 @@ class AssignmentResultSerializer(sz.ModelSerializer):
         model = md.StudentAssignment
         fields = '__all__'
 
-    def get_fields(self, *args, **kwargs):
-        fields = super(
-            AssignmentResultSerializer, self).get_fields(*args, **kwargs)
-        view = self.context['view']
-        assignment_id = md.Assignment.objects.get(
-            slug=view.kwargs.get('slug'))
-        student_asnmt_id = md.StudentAssignment.objects.get(
-            student=self.context['request'].user.pk)
-        fields['assignment'].queryset = \
-            fields['assignment'].queryset.filter(pk=assignment_id.pk)
-        fields['student'].queryset = \
-            fields['student'].queryset.filter(
-                st_assignments=student_asnmt_id)
-        return fields
+    # def get_fields(self, *args, **kwargs):
+    #     fields = super(
+    #         AssignmentResultSerializer, self).get_fields(*args, **kwargs)
+    #     view = self.context['view']
+    #     assignment_id = md.Assignment.objects.get(
+    #         slug=view.kwargs.get('slug'))
+    #     student_asnmt_id = md.StudentAssignment.objects.get(
+    #         student=self.context['request'].user.pk)
+    #     fields['assignment'].queryset = \
+    #         fields['assignment'].queryset.filter(pk=view.kwargs.get('slug'))
+    #     fields['student'].queryset = \
+    #         fields['student'].queryset.filter(
+    #             st_assignments=self.context['request'].user.pk)
+    #     return fields

@@ -77,11 +77,12 @@ class AssignmentDetailAPI(generics.RetrieveAPIView):
 
 
 class SaveAnswer(generics.RetrieveUpdateAPIView):
+    queryset = md.Answer.objects.all()
     serializer_class = msz.TestAnswersSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return md.Answer.objects.filter(id=self.kwargs["pk"])
+        return super().get_queryset().filter(pk=self.kwargs.get("pk"))
 
     def patch(self, request, *args, **kwargs):
         student_id = request.data['student']
@@ -121,18 +122,25 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
             },
                 status=status.HTTP_412_PRECONDITION_FAILED
             )
+        else:
+            student.completed = True
+            correct_answers = 0
 
-        student.completed = True
-        correct_answers = 0
+            for answer in md.Answer.objects.filter(student=student):
+                try:
+                    choice = md.Choice.objects.get(question=answer.question,
+                                                   is_correct=True)
+                    if answer.choice == choice:
+                        correct_answers += 1
+                except md.Choice.DoesNotExist:
+                    pass
 
-        for answer in md.Answer.objects.filter(student=student):
-            choice = md.Choice.objects.get(question=answer.question,
-                                           is_correct=True)
-            if answer.choice == choice:
-                correct_answers += 1
+            student.grade = int(correct_answers /
+                                student.assignment.questions.count() * 100)
+            student.save()
 
-        student.grade = int(correct_answers /
-                            student.assignment.questions.count() * 100)
-        student.save()
-
-        return Response(status=status.HTTP_202_ACCEPTED)
+            return Response({
+                "message": "Спасибо, ваши ответы приняты. "
+            },
+                status=status.HTTP_202_ACCEPTED
+            )
