@@ -112,8 +112,11 @@ class SubmitAssignmentAPI(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        assignment = get_object_or_404(
+            md.Assignment, slug=self.kwargs.get("slug"))
         student = request.data['student']
-        student = get_object_or_404(md.StudentAssignment, student=student)
+        student = get_object_or_404(md.StudentAssignment, student=student,
+                                    assignment=assignment)
 
         if student.completed:
             return Response({

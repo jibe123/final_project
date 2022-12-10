@@ -66,7 +66,7 @@ class StudentAssignment(models.Model):
         Student, on_delete=models.CASCADE, related_name='st_assignments',
         verbose_name='Студент')
     assignment = models.ForeignKey(
-        Assignment, on_delete=models.SET_NULL, related_name='st_assignments',
+        Assignment, on_delete=models.CASCADE, related_name='st_assignments',
         blank=True, null=True, verbose_name="Задание")
     grade = models.FloatField(default=0, verbose_name="Оценка")
     completed = models.BooleanField(
