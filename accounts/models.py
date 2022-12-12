@@ -88,7 +88,7 @@ class Student(models.Model):
         User, on_delete=models.CASCADE, primary_key=True,
         related_name="students", verbose_name="Пользователь")
     group = models.ForeignKey(
-        Group, on_delete=models.PROTECT, related_name="students",
+        Group, on_delete=models.CASCADE, related_name="students",
         null=True, verbose_name="Группа")
 
     def __str__(self):

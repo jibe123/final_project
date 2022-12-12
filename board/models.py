@@ -10,7 +10,7 @@ class Thread(models.Model):
         max_length=100, blank=True, default='',
         verbose_name="Заголовок темы")
     owner = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name='threads',
+        User, on_delete=models.CASCADE, related_name='threads',
         verbose_name="Создатель темы")
 
     def __str__(self):
@@ -32,7 +32,7 @@ class Message(models.Model):
         verbose_name="Заголовок")
     body_text = models.TextField(verbose_name="Текст сообщения")
     owner = models.ForeignKey(
-        User, on_delete=models.PROTECT,
+        User, on_delete=models.CASCADE,
         related_name='messages', verbose_name="Создатель сообщения")
     thread = models.ForeignKey(
         Thread, on_delete=models.CASCADE,

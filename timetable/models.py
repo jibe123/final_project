@@ -36,7 +36,7 @@ class CourseMaterials(models.Model):
         upload_to='materials/', null=True, blank=True,
         verbose_name="Материал")
     owner = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="materials",
+        User, on_delete=models.CASCADE, related_name="materials",
         limit_choices_to={'is_teacher': True}, verbose_name="Владелец")
     added = models.DateTimeField(auto_now_add=True)
 

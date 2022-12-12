@@ -47,7 +47,7 @@ class Choice(models.Model):
         verbose_name_plural = "Варианты"
 
     question = models.ForeignKey(
-        Question, on_delete=models.DO_NOTHING, related_name='choices',
+        Question, on_delete=models.CASCADE, related_name='choices',
         blank=True, null=True, verbose_name="Вопрос")
     text = models.CharField(
         max_length=255, verbose_name="Текст варианта")
