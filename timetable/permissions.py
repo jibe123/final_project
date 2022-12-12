@@ -20,17 +20,20 @@ class IsCourseStudent(BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous:
             return False
-        return True if request.user.is_student else False
+        else:
+            return True if request.user.is_student else False
 
     def has_object_permission(self, request, view, obj):
         if request.user.is_anonymous:
             return False
-        student = Student.objects.get(pk=request.user)
-        return True if student.group in obj.course.groups.all() else False
+        else:
+            student = Student.objects.get(pk=request.user)
+            return True if student.group in obj.course.groups.all() else False
 
 
 class IsMaterialsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_anonymous:
             return False
-        return request.user == obj.owner
+        else:
+            return request.user == obj.owner

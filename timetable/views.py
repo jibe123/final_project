@@ -35,11 +35,13 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = msz.CourseSerializer
 
     def get_queryset(self):
-        if self.request.user.is_superuser or self.request.user.is_manager:
+        if self.request.user.is_anonymous:
+            queryset = None
+        elif self.request.user.is_superuser or self.request.user.is_manager:
             queryset = Course.objects.all()
         elif self.request.user.is_teacher:
             queryset = Course.objects.filter(teacher=self.request.user)
-        else:
+        elif self.request.user.is_student:
             queryset = Course.objects.filter(
                 groups__id__exact=Student.objects.get(
                     pk=self.request.user).group_id)
@@ -88,7 +90,9 @@ class CourseMaterialsViewSet(viewsets.ModelViewSet):
     serializer_class = msz.CourseMaterialsSerializer
 
     def get_queryset(self):
-        if self.request.user.is_superuser or self.request.user.is_manager:
+        if self.request.user.is_anonymous:
+            queryset = None
+        elif self.request.user.is_superuser or self.request.user.is_manager:
             queryset = CourseMaterials.objects.all()
         elif self.request.user.is_teacher:
             queryset = CourseMaterials.objects.filter(
@@ -97,8 +101,6 @@ class CourseMaterialsViewSet(viewsets.ModelViewSet):
             queryset = CourseMaterials.objects.filter(
                 course__in=Student.objects.get(
                     pk=self.request.user).group.courses.all())
-        else:
-            queryset = None
         return queryset
 
     def get_permissions(self):

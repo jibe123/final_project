@@ -17,7 +17,7 @@ class ChangePasswordSerializer(sz.Serializer):
         return data
 
 
-class ChangeProfilePhotoSerializer(sz.ModelSerializer):
+class ChangeUserProfileSerializer(sz.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'user_image',)
+        fields = ('id', 'user_image', 'first_name', 'last_name', 'email')

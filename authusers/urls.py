@@ -18,7 +18,7 @@ urlpatterns = [
         namespace='password_reset')),
     path('change_password/', vs.ChangePasswordView.as_view(),
          name='change-password'),
-    path('change_profile_photo/', vs.ChangeProfilePhotoView.as_view(),
+    path('change_user_profile/', vs.ChangeUserProfileView.as_view(),
          name='change-profile-photo'),
     path('login/', LoginView.as_view(
         template_name='admin/login.html'), name='login'),

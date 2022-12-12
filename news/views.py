@@ -16,7 +16,7 @@ class NewsViewSet(viewsets.ModelViewSet):
             permission_classes = [IsSuperuser | IsManager]
 
         elif self.action in ['update', 'partial_update', 'destroy']:
-            permission_classes = [IsOwner]
+            permission_classes = [IsSuperuser | IsOwner]
 
         else:
             permission_classes = [AllowAny]

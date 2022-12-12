@@ -6,7 +6,6 @@ from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from django_rest_passwordreset.models import ResetPasswordToken
 from django_rest_passwordreset.signals import reset_password_token_created
@@ -80,13 +79,11 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ChangeProfilePhotoView(APIView):
+class ChangeUserProfileView(generics.RetrieveUpdateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = msz.ChangeUserProfileSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = msz.ChangeProfilePhotoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    def get_object(self):
+        return self.request.user

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from rest_framework.permissions import IsAuthenticated
+from .permissions import IsStudent
 
 import assignments.models as md
 import assignments.serializers as msz
@@ -11,7 +11,7 @@ from accounts.models import Student
 
 
 class MyAssignmentListAPI(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStudent]
     serializer_class = msz.AssignmentsSerializer
 
     def get_queryset(self, *args, **kwargs):
@@ -30,7 +30,7 @@ class MyAssignmentListAPI(generics.ListAPIView):
 
 class AssignmentListAPI(generics.ListAPIView):
     serializer_class = msz.AssignmentsListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStudent]
 
     def get_queryset(self, *args, **kwargs):
         queryset = md.Assignment.objects.filter(
@@ -50,7 +50,7 @@ class AssignmentListAPI(generics.ListAPIView):
 
 class AssignmentDetailAPI(generics.RetrieveAPIView):
     serializer_class = msz.AssignmentDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStudent]
 
     def get(self, *args, **kwargs):
         slug = self.kwargs["slug"]
@@ -79,7 +79,7 @@ class AssignmentDetailAPI(generics.RetrieveAPIView):
 class SaveAnswer(generics.RetrieveUpdateAPIView):
     queryset = md.Answer.objects.all()
     serializer_class = msz.TestAnswersSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStudent]
 
     def get_queryset(self):
         return super().get_queryset().filter(pk=self.kwargs.get("pk"))
@@ -109,7 +109,7 @@ class SaveAnswer(generics.RetrieveUpdateAPIView):
 
 class SubmitAssignmentAPI(generics.GenericAPIView):
     serializer_class = msz.AssignmentResultSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStudent]
 
     def post(self, request, *args, **kwargs):
         assignment = get_object_or_404(
