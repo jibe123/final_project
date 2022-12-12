@@ -105,4 +105,4 @@ class Answer(models.Model):
 
 @receiver(pre_save, sender=Assignment)
 def slugify_title(sender, instance, *args, **kwargs):
-    instance.slug = slugify(instance.title, allow_unicode=True)
+    instance.slug = slugify(instance.title)
